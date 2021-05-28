@@ -16,17 +16,15 @@ class MyApp extends StatelessWidget {
       ),
       home: MyHomePage(
         title: 'QR Code Helper',
-        url: "www.hao123.com",
       ),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, required this.title, required this.url})
+  MyHomePage({Key? key, required this.title})
       : super(key: key);
   final String title;
-  final String url;
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
