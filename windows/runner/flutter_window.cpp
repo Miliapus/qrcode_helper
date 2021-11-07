@@ -3,13 +3,28 @@
 #include <optional>
 
 #include "flutter/generated_plugin_registrant.h"
+#include "flutter/method_channel.h"
+#include "flutter/standard_method_codec.h"
 
 FlutterWindow::FlutterWindow(RunLoop* run_loop,
                              const flutter::DartProject& project)
     : run_loop_(run_loop), project_(project) {}
 
 FlutterWindow::~FlutterWindow() {}
-
+void configMethodChannel(flutter::FlutterEngine *engine) {
+  const std::string copyChannel("com.xja.qrcode_helper/copy");
+  const auto& codec = flutter::StandardMethodCodec::GetInstance();
+  flutter::MethodChannel method_channel_(engine->messenger(), copyChannel, &codec);
+  method_channel_.SetMethodCallHandler([](const auto& call, auto result) {
+    if (call.method_name().compare("copyImageData") == 0) {
+        auto& data = std::get<std::vector<uint8_t>>(*(call.arguments()));
+        std::cout << "size " << data.size() << std::endl;
+        result->Success();
+    } else {
+      result->NotImplemented();
+    }
+  });
+}
 bool FlutterWindow::OnCreate() {
   if (!Win32Window::OnCreate()) {
     return false;
@@ -28,6 +43,7 @@ bool FlutterWindow::OnCreate() {
   RegisterPlugins(flutter_controller_->engine());
   run_loop_->RegisterFlutterInstance(flutter_controller_->engine());
   SetChildContent(flutter_controller_->view()->GetNativeWindow());
+  configMethodChannel(flutter_controller_->engine());
   return true;
 }
 

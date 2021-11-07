@@ -1,5 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+
+import 'copy.dart';
 
 void main() {
   runApp(MyApp());
@@ -22,8 +27,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, required this.title})
-      : super(key: key);
+  MyHomePage({Key? key, required this.title}) : super(key: key);
   final String title;
 
   @override
@@ -31,9 +35,38 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final TextEditingController controller = TextEditingController();
   String url = "";
+
   @override
   Widget build(BuildContext context) {
+    final imageKey = GlobalKey<State<QrImage>>();
+    RenderRepaintBoundary targetRenderRepaintBoundary() =>
+        imageKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+    Widget deleteIcon() => IconButton(
+          icon: Icon(Icons.delete),
+          onPressed: () {
+            setState(() {
+              controller.clear();
+            });
+          },
+        );
+
+    Widget copyIcon() => IconButton(
+          icon: Icon(Icons.copy),
+          onPressed: () async {
+            copy(targetRenderRepaintBoundary());
+          },
+        );
+    Widget icons() => Row(
+          children: [
+            Offstage(
+              offstage: !Platform.isWindows,
+              child: copyIcon(),
+            ),
+            deleteIcon()
+          ],
+        );
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
@@ -46,21 +79,18 @@ class _MyHomePageState extends State<MyHomePage> {
               alignment: AlignmentDirectional.center,
               children: [
                 Align(
-                    child: Container(
+                  child: Container(
                       padding: EdgeInsets.only(left: 50, right: 50, top: 25),
-                      child: QrImage(
-                        data: url,
-                        size: 200,
-                        padding: EdgeInsets.all(0),
-                      ),
-                    ),
+                      child: RepaintBoundary(
+                        key: imageKey,
+                        child: QrImage(
+                          data: controller.text,
+                          size: 200,
+                          padding: EdgeInsets.all(0),
+                        ),
+                      )),
                   heightFactor: 1,
                 ),
-                Positioned(
-                  child: MaterialButton(child: Text("复制"), onPressed: () {},),
-                  right: 16,
-                  bottom: 0,
-                )
               ],
             ),
             Stack(
@@ -68,14 +98,14 @@ class _MyHomePageState extends State<MyHomePage> {
               children: [
                 TextField(
                   onChanged: (String text) {
-                    setState(() {
-                      url = text;
-                    });
+                    setState(() {});
                   },
+                  controller: controller,
                   textAlign: TextAlign.center,
                   autofocus: true,
                 ),
-                Positioned(child: Icon(Icons.delete),
+                Positioned(
+                  child: icons(),
                   right: 10,
                 )
               ],
