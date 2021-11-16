@@ -1,5 +1,7 @@
 flutter/ephemeral/
 
+.vs/
+
 # Visual Studio user-specific files.
 *.suo
 *.user
@@ -9,6 +11,9 @@ flutter/ephemeral/
 # Visual Studio build-related files.
 x64/
 x86/
+x64-Debug-VS2019/
+x64-Debug/
+cmake-build-debug/
 
 # Visual Studio cache files
 # files ending in .cache can be ignored
