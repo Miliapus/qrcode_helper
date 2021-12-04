@@ -10,7 +10,8 @@ add_executable(${BINARY_NAME} WIN32
   "${FLUTTER_MANAGED_DIR}/generated_plugin_registrant.cc"
   "Runner.rc"
   "runner.exe.manifest"
-)
+        "copy.h"
+        "copy.cpp")
 apply_standard_settings(${BINARY_NAME})
 target_compile_definitions(${BINARY_NAME} PRIVATE "NOMINMAX")
 target_link_libraries(${BINARY_NAME} PRIVATE flutter flutter_wrapper_app)

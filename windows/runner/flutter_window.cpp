@@ -1,24 +1,29 @@
 #include "flutter_window.h"
 
 #include <optional>
-
+#include <windows.h>
 #include "flutter/generated_plugin_registrant.h"
 #include "flutter/method_channel.h"
 #include "flutter/standard_method_codec.h"
+#include "copy.h"
 
 FlutterWindow::FlutterWindow(RunLoop* run_loop,
                              const flutter::DartProject& project)
     : run_loop_(run_loop), project_(project) {}
 
 FlutterWindow::~FlutterWindow() {}
+
 void configMethodChannel(flutter::FlutterEngine *engine) {
   const std::string copyChannel("com.xja.qrcode_helper/copy");
   const auto& codec = flutter::StandardMethodCodec::GetInstance();
   flutter::MethodChannel method_channel_(engine->messenger(), copyChannel, &codec);
   method_channel_.SetMethodCallHandler([](const auto& call, auto result) {
     if (call.method_name().compare("copyImageData") == 0) {
+        std::cout << "type " << std::holds_alternative<std::vector<uint8_t>>(*(call.arguments())) << std::endl;
         auto& data = std::get<std::vector<uint8_t>>(*(call.arguments()));
         std::cout << "size " << data.size() << std::endl;
+        int error = copy::copyImage(200,200,data);
+        std::cout << "error " << error << std::endl;
         result->Success();
     } else {
       result->NotImplemented();
