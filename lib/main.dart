@@ -43,29 +43,36 @@ class _MyHomePageState extends State<MyHomePage> {
     final imageKey = GlobalKey<State<QrImage>>();
     RenderRepaintBoundary targetRenderRepaintBoundary() =>
         imageKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
-    Widget deleteIcon() => IconButton(
+    final deleteIcon = IconButton(
           icon: Icon(Icons.delete),
           onPressed: () {
             setState(() {
               controller.clear();
             });
           },
-        );
-
-    Widget copyIcon() => IconButton(
+        ),
+        copyIcon = IconButton(
           icon: Icon(Icons.copy),
           onPressed: () async {
             copy(targetRenderRepaintBoundary());
           },
-        );
-    Widget icons() => Row(
+        ),
+        icons = Row(
           children: [
             Offstage(
               offstage: !Platform.isWindows,
-              child: copyIcon(),
+              child: copyIcon,
             ),
-            deleteIcon()
+            deleteIcon
           ],
+        ),
+        inputField = TextField(
+          onChanged: (String text) {
+            setState(() {});
+          },
+          controller: controller,
+          textAlign: TextAlign.center,
+          autofocus: true,
         );
     return Scaffold(
       appBar: AppBar(
@@ -75,41 +82,38 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Stack(
-              alignment: AlignmentDirectional.center,
+            Align(
+              child: Container(
+                child: RepaintBoundary(
+                  key: imageKey,
+                  child: QrImage(
+                    backgroundColor: Colors.white,
+                    data: controller.text,
+                    size: 200,
+                    padding: EdgeInsets.all(0),
+                  ),
+                ),
+              ),
+              heightFactor: 1,
+            ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Align(
-                  child: Container(
-                      padding: EdgeInsets.only(left: 50, right: 50, top: 25),
-                      child: RepaintBoundary(
-                        key: imageKey,
-                        child: QrImage(
-                          data: controller.text,
-                          size: 200,
-                          padding: EdgeInsets.all(0),
-                        ),
-                      )),
-                  heightFactor: 1,
+                Expanded(
+                  child: Container(),
+                  flex: 1,
+                ),
+                Expanded(
+                  child: inputField,
+                  flex: 3,
+                ),
+                // inputField,
+                Expanded(
+                  child: icons,
+                  flex: 1,
                 ),
               ],
-            ),
-            Stack(
-              alignment: AlignmentDirectional.center,
-              children: [
-                TextField(
-                  onChanged: (String text) {
-                    setState(() {});
-                  },
-                  controller: controller,
-                  textAlign: TextAlign.center,
-                  autofocus: true,
-                ),
-                Positioned(
-                  child: icons(),
-                  right: 10,
-                )
-              ],
-            ),
+            )
           ],
         ),
       ),
