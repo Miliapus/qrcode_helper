@@ -1,9 +1,11 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-
+import 'package:share/share.dart';
 import 'copy.dart';
 
 void main() {
@@ -35,42 +37,56 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final TextEditingController controller = TextEditingController();
-  String url = "";
+  final TextEditingController _controller = TextEditingController();
+  final imageKey = GlobalKey<State<QrImage>>();
+
+  RenderRepaintBoundary get body =>
+      imageKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+
+  void _share() async {
+    final path = (await getTemporaryDirectory()).path,
+        file = File('$path/shareImage.png'),
+        data = await body.toData(format: ImageByteFormat.png);
+    await file.writeAsBytes(data, flush: true);
+    Share.shareFiles([file.path]);
+  }
 
   @override
   Widget build(BuildContext context) {
-    final imageKey = GlobalKey<State<QrImage>>();
-    RenderRepaintBoundary targetRenderRepaintBoundary() =>
-        imageKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
-    final deleteIcon = IconButton(
-          icon: Icon(Icons.delete),
+    final clearIcon = IconButton(
+          icon: Icon(Icons.clear),
           onPressed: () {
             setState(() {
-              controller.clear();
+              _controller.clear();
             });
           },
         ),
         copyIcon = IconButton(
           icon: Icon(Icons.copy),
           onPressed: () async {
-            copy(targetRenderRepaintBoundary());
+            copy(body);
           },
         ),
-        icons = Row(
+        shareIcon = IconButton(
+          icon: Icon(Icons.share),
+          onPressed: _share,
+        ),
+        copyAndClearIcons = Row(
           children: [
             Offstage(
               offstage: !Platform.isWindows,
               child: copyIcon,
             ),
-            deleteIcon
+            clearIcon
           ],
         ),
         inputField = TextField(
           onChanged: (String text) {
-            setState(() {});
+            setState(() {
+
+            });
           },
-          controller: controller,
+          controller: _controller,
           textAlign: TextAlign.center,
           autofocus: true,
         );
@@ -82,19 +98,14 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Align(
-              child: Container(
-                child: RepaintBoundary(
-                  key: imageKey,
-                  child: QrImage(
-                    backgroundColor: Colors.white,
-                    data: controller.text,
-                    size: 200,
-                    padding: EdgeInsets.all(0),
-                  ),
-                ),
+            RepaintBoundary(
+              key: imageKey,
+              child: QrImage(
+                backgroundColor: Colors.white,
+                data: _controller.text,
+                size: 200,
+                padding: EdgeInsets.all(0),
               ),
-              heightFactor: 1,
             ),
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -109,11 +120,16 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 // inputField,
                 Expanded(
-                  child: icons,
+                  child: copyAndClearIcons,
                   flex: 1,
                 ),
               ],
-            )
+            ),
+            //小屏幕放不下两个按钮，所以放在下面
+            Offstage(
+              offstage: !(Platform.isAndroid || Platform.isIOS),
+              child: shareIcon,
+            ),
           ],
         ),
       ),

@@ -4,7 +4,7 @@ import 'dart:ui';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
-MethodChannel copyChannel = MethodChannel("com.xja.qrcode_helper/copy");
+const copyChannel = MethodChannel("com.xja.qrcode_helper/copy");
 
 extension read on RenderRepaintBoundary {
   Future<Uint8List> toData(
