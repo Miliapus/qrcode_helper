@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.miliapus.qrcode_helper">
    <application
-        android:label="qrcode_helper"
+        android:label="QR Helper"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
