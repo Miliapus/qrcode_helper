@@ -18,11 +18,11 @@ void configMethodChannel(flutter::FlutterEngine *engine) {
   const auto& codec = flutter::StandardMethodCodec::GetInstance();
   flutter::MethodChannel method_channel_(engine->messenger(), copyChannel, &codec);
   method_channel_.SetMethodCallHandler([](const auto& call, auto result) {
-    if (call.method_name().compare("copyImageData") == 0) {
-        std::cout << "type " << std::holds_alternative<std::vector<uint8_t>>(*(call.arguments())) << std::endl;
-        auto& data = std::get<std::vector<uint8_t>>(*(call.arguments()));
-        std::cout << "size " << data.size() << std::endl;
-        int error = copy::copyImage(200,200,data);
+    if (call.method_name() == "copyImageData") {
+        std::cout << "type " << std::holds_alternative<data>(*(call.arguments())) << std::endl;
+        auto& imageData = std::get<data>(*(call.arguments()));
+        std::cout << "size " << imageData.size() << std::endl;
+        int error = copy::copyImage(200,200, imageData);
         std::cout << "error " << error << std::endl;
         result->Success();
     } else {
