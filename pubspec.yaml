@@ -21,7 +21,9 @@ environment:
   sdk: ">=2.14.0 <3.0.0"
 
 dependencies:
+  share: ^2.0.4
   qr_flutter: ^4.0.0
+  path_provider: ^2.0.8
   flutter:
     sdk: flutter
 
